@@ -50,3 +50,14 @@ CREATE TABLE student (
     FOREIGN KEY (class_id) REFERENCES class(class_id) ON DELETE CASCADE,
     FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE
 );
+Achivement TABLE
+CREATE TABLE achievement (
+    id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique ID for each achievement
+    title VARCHAR(255) NOT NULL,               -- Title of the achievement
+    date_of_achievement DATE NOT NULL,         -- Date of the achievement
+    awarded_by VARCHAR(255),                   -- Awarding entity/individual
+    photo BLOB,                                -- Photo related to the achievement
+    student_id INT,                            -- Foreign key referencing student_id
+    FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE -- Reference to student table
+);
+

@@ -1,5 +1,5 @@
-<?php include 'header.php';?>
-<?php include 'db.php';?>
+<?php include 'header.php'; ?>
+<?php include 'db.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,17 +20,47 @@
             margin-bottom: 50px;
         }
         .form-container h2 {
-            color: #007bff;
+            color: #ff385c;
             margin-bottom: 30px;
             text-align: center;
         }
         .form-label {
             font-weight: 600;
+            color: #ff385c;
         }
         .btn-submit {
             width: 100%;
             margin-top: 20px;
+            background-color: #ff385c;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+        .btn-submit:hover {
+            background-color: #e0304e;
+        }
+        .rounded-preview {
+            display: block;
+            margin-top: 15px;
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+        .user-menu-button {
+    background-color: #ff385c; /* Primary color for the button */
+    color: white; /* Text color */
+    display: flex; /* Flex layout for alignment */
+    align-items: center; /* Center items vertically */
+    border: none; /* Remove default border */
+    border-radius: 30px; /* Rounded corners */
+    padding: 10px 15px; /* Padding for the button */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effects */
+}
     </style>
 </head>
 <body>
@@ -38,8 +68,9 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6 form-container">
             <h2>Student Registration</h2>
+
+            <!-- Error and Success Messages -->
             <?php
-            // PHP code for form processing and validation (same as before)
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $errors = [];
 
@@ -75,8 +106,12 @@
                     echo '</ul></div>';
                 }
             }
+            
+
             ?>
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+
+            <!-- Registration Form -->
+            <form method="post" action="submit_student.php" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="full_name" class="form-label">Full Name</label>
@@ -97,11 +132,7 @@
                             <option value="2">Nursery</option>
                             <option value="3">KG</option>
                             <option value="4">LKG</option>
-                            <?php
-                            for ($i = 1; $i <= 10; $i++) {
-                                echo "<option value='" . ($i + 4) . "'>Class $i</option>";
-                            }
-                            ?>
+                            <?php for ($i = 1; $i <= 10; $i++) { echo "<option value='" . ($i + 4) . "'>Class $i</option>"; } ?>
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -114,10 +145,13 @@
                         </select>
                     </div>
                 </div>
+                <!-- Profile Image Upload Section -->
                 <div class="mb-3">
-                    <label for="profile_image" class="form-label">Profile Image URL</label>
-                    <input type="url" class="form-control" id="profile_image" name="profile_image">
+                    <label for="profile_image" class="form-label">Profile Image</label>
+                    <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(event)">
+                    <img id="image_preview" class="rounded-preview" style="display:none;">
                 </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="address" class="form-label">Address</label>
@@ -144,11 +178,23 @@
                     <label for="remarks" class="form-label">Remarks</label>
                     <textarea class="form-control" id="remarks" name="remarks" rows="2"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary btn-submit">Submit</button>
+                <button type="submit" class="btn btn-submit">Submit</button>
             </form>
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById('image_preview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
 </body>
 </html>

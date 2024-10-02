@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role'] = $user['role']; // Store the role
         $_SESSION['user_photo'] = $user['image']; // Store user photo if available
         
-        header("Location: header.php"); // Redirect to header page
+        header("Location: home.php"); // Redirect to header page
         exit();
     } else {
         $loginError = 'Invalid phone number, role, or password.';
