@@ -8,10 +8,9 @@ CREATE TABLE section (
 class
 CREATE TABLE class (
     class_id INT AUTO_INCREMENT PRIMARY KEY,
-    class_name VARCHAR(100) NOT NULL,
-    section_id INT NOT NULL,
-    FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE
+    class_name VARCHAR(100) NOT NULL
 );
+
 classTeacher
 CREATE TABLE classteacher (
     teacher_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -32,4 +31,22 @@ CREATE TABLE user (
     phone VARCHAR(15) NOT NULL,
     image VARCHAR(255), -- Field for storing image path or URL
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Student TABLE
+CREATE TABLE student (
+    student_id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    class_id INT NOT NULL,
+    section_id INT NOT NULL,
+    profile_image VARCHAR(255),
+    address VARCHAR(255),
+    street VARCHAR(255),
+    phone_number VARCHAR(15),
+    words_from_class_teacher TEXT,
+    words_from_principal TEXT,
+    education_status VARCHAR(50),
+    remarks TEXT,
+    FOREIGN KEY (class_id) REFERENCES class(class_id) ON DELETE CASCADE,
+    FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE
 );
