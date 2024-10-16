@@ -1,5 +1,23 @@
-<?php include 'header.php'; ?>
-<?php include 'db.php'; ?>
+<?php
+include 'header.php';
+include 'db.php';
+
+// Start session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Ensure the session contains user_id
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id']; // Get the logged-in user ID
+} else {
+    // Handle the case when user_id is not in the session
+    echo 'User is not logged in. Please log in again.';
+    exit; // Stop further execution
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,16 +69,16 @@
             object-fit: cover;
         }
         .user-menu-button {
-    background-color: #ff385c; /* Primary color for the button */
-    color: white; /* Text color */
-    display: flex; /* Flex layout for alignment */
-    align-items: center; /* Center items vertically */
-    border: none; /* Remove default border */
-    border-radius: 30px; /* Rounded corners */
-    padding: 10px 15px; /* Padding for the button */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effects */
-}
+            background-color: #ff385c; /* Primary color for the button */
+            color: white; /* Text color */
+            display: flex; /* Flex layout for alignment */
+            align-items: center; /* Center items vertically */
+            border: none; /* Remove default border */
+            border-radius: 30px; /* Rounded corners */
+            padding: 10px 15px; /* Padding for the button */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+            transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effects */
+        }
     </style>
 </head>
 <body>
@@ -106,8 +124,6 @@
                     echo '</ul></div>';
                 }
             }
-            
-
             ?>
 
             <!-- Registration Form -->
@@ -145,12 +161,16 @@
                         </select>
                     </div>
                 </div>
+
                 <!-- Profile Image Upload Section -->
                 <div class="mb-3">
                     <label for="profile_image" class="form-label">Profile Image</label>
                     <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(event)">
                     <img id="image_preview" class="rounded-preview" style="display:none;">
                 </div>
+
+                <!-- Hidden input field for user_id -->
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
 
                 <div class="row">
                     <div class="col-md-6 mb-3">

@@ -3,7 +3,7 @@
 $host = 'localhost'; // Your database host
 $db   = 'continental_school'; // Your database name
 $user = 'root'; // Your database username
-$pass = ''; // Your database password 
+$pass = 'mysql'; // Your database password 
 $charset = 'utf8mb4'; // Character set
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

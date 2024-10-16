@@ -1,6 +1,13 @@
 <?php
 // Include the database connection file
 include 'db.php';
+session_start(); // Start the session to access user data
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php"); // Redirect to login page if not logged in
+    exit();
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Fetch form data
@@ -15,6 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $education_status = $_POST['education_status'];
     $remarks = $_POST['remarks'];
     
+    // Get the admin ID from the session
+    $admin_id = $_SESSION['user_id'];
+
     // Handle profile image upload
     $profile_image = '';
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
@@ -29,9 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Prepare SQL statement to insert the student data
     $sql = "INSERT INTO student 
-                (full_name, class_id, section_id, profile_image, address, street, phone_number, words_from_class_teacher, words_from_principal, education_status, remarks) 
+                (full_name, class_id, section_id, profile_image, address, street, phone_number, words_from_class_teacher, words_from_principal, education_status, remarks, admin_id) 
             VALUES 
-                (:full_name, :class_id, :section_id, :profile_image, :address, :street, :phone_number, :words_from_class_teacher, :words_from_principal, :education_status, :remarks)";
+                (:full_name, :class_id, :section_id, :profile_image, :address, :street, :phone_number, :words_from_class_teacher, :words_from_principal, :education_status, :remarks, :admin_id)";
     
     // Execute the prepared statement
     try {
@@ -47,7 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':words_from_class_teacher' => $words_from_class_teacher,
             ':words_from_principal' => $words_from_principal,
             ':education_status' => $education_status,
-            ':remarks' => $remarks
+            ':remarks' => $remarks,
+            ':admin_id' => $admin_id // Include admin_id in the insert
         ]);
         
         // After successful form submission, redirect to the signup page

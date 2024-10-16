@@ -23,7 +23,7 @@ CREATE TABLE classteacher (
 );
 
 admin
-CREATE TABLE user (
+CREATE TABLE admin (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     role VARCHAR(50) NOT NULL,
@@ -47,9 +47,12 @@ CREATE TABLE student (
     words_from_principal TEXT,
     education_status VARCHAR(50),
     remarks TEXT,
+    admin_id INT,  -- Add the admin_id column to establish the relationship
     FOREIGN KEY (class_id) REFERENCES class(class_id) ON DELETE CASCADE,
-    FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE
+    FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE,
+    FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE SET NULL -- Correct reference to admin table's 'id' column
 );
+
 Achivement TABLE
 CREATE TABLE achievement (
     id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique ID for each achievement
@@ -58,6 +61,34 @@ CREATE TABLE achievement (
     awarded_by VARCHAR(255),                   -- Awarding entity/individual
     photo BLOB,                                -- Photo related to the achievement
     student_id INT,                            -- Foreign key referencing student_id
-    FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE -- Reference to student table
+    admin_id INT,                              -- Foreign key referencing admin_id
+    FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE, -- Reference to student table
+    FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE SET NULL             -- Reference to admin table
 );
 
+
+CREATE TABLE exams (
+    id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique ID for each exam record
+    student_id INT NOT NULL,                   -- Foreign key referencing student_id
+    admin_id INT,                              -- Foreign key referencing admin_id (must allow NULL)
+    exam_date DATE NOT NULL,                   -- Date of the exam
+    GPA DECIMAL(3, 2),                         -- Grade Point Average (GPA) for the exam
+    failed_subjects TEXT,                      -- List of failed subjects
+    passed_subjects TEXT,                      -- List of passed subjects
+    remarks TEXT,                              -- General remarks about the student's performance
+    parents_view TEXT,                         -- Feedback or comments from parents
+    FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE, -- Reference to student table
+    FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE SET NULL             -- Reference to admin table
+);
+
+CREATE TABLE student_reports (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique ID for each report entry
+    student_id INT NOT NULL,                   -- Foreign key referencing student_id
+    admin_id INT,                              -- Foreign key referencing admin_id (must allow NULL)
+    report_date DATE NOT NULL,                 -- The specific date the report is created
+    admin_notes TEXT,                          -- Notes from admin about the student
+    picture BLOB,                              -- Image (can store image as BLOB or you can use VARCHAR for a URL path)
+    visit_report TEXT,                         -- Report from parents or visit feedback
+    FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE, -- Reference to student table
+    FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE SET NULL             -- Reference to admin table
+);

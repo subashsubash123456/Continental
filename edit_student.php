@@ -3,6 +3,14 @@ ob_start(); // Start output buffering
 
 // Include database connection
 require_once 'db.php';
+require_once 'header.php';
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id']; // Get the logged-in user ID (admin)
+} else {
+    // Handle the case when user_id is not in the session
+    echo 'User is not logged in. Please log in again.';
+    exit; // Stop further execution
+}
 
 // Initialize variables
 $student = null;
@@ -55,6 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($student_id)) {
 
     if (empty($errors)) {
         try {
+            // Include admin_id in the update query
             $stmt = $pdo->prepare("UPDATE student SET 
                 full_name = :full_name, 
                 phone_number = :phone_number, 
@@ -65,7 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($student_id)) {
                 words_from_class_teacher = :words_from_class_teacher, 
                 words_from_principal = :words_from_principal, 
                 education_status = :education_status, 
-                remarks = :remarks 
+                remarks = :remarks,
+                admin_id = :admin_id  -- Track the admin updating the record
                 WHERE student_id = :student_id");
 
             $stmt->execute([
@@ -79,6 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($student_id)) {
                 'words_from_principal' => $_POST['words_from_principal'],
                 'education_status' => $_POST['education_status'],
                 'remarks' => $_POST['remarks'],
+                'admin_id' => $user_id, // Track the admin ID
                 'student_id' => $student_id
             ]);
 
@@ -108,6 +119,31 @@ require_once 'header.php';
     <style>
         body {
             background-color: #f8f9fa;
+        }
+        .user-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-menu-button {
+            background-color: #ff385c; /* Primary color for the button */
+            color: white; /* Text color */
+            display: flex; /* Flex layout for alignment */
+            align-items: center; /* Center items vertically */
+            border: none; /* Remove default border */
+            border-radius: 30px; /* Rounded corners */
+            padding: 10px 15px; /* Padding for the button */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+            transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effects */
+        }
+        .user-menu-button:hover {
+            background-color: #e63946; /* Darker shade on hover */
+            transform: translateY(-2px); /* Lift effect */
+        }
+        .user-menu-button:focus {
+            outline: none; /* Remove default focus outline */
+            box-shadow: 0 0 0 2px rgba(255, 56, 92, 0.5); /* Custom focus outline */
         }
         .form-container {
             background-color: #ffffff;
@@ -148,17 +184,6 @@ require_once 'header.php';
             height: 150px;
             object-fit: cover;
         }
-        .user-menu-button {
-    background-color: #ff385c; /* Primary color for the button */
-    color: white; /* Text color */
-    display: flex; /* Flex layout for alignment */
-    align-items: center; /* Center items vertically */
-    border: none; /* Remove default border */
-    border-radius: 30px; /* Rounded corners */
-    padding: 10px 15px; /* Padding for the button */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transition for hover effects */
-}
     </style>
 </head>
 <body>
@@ -213,36 +238,29 @@ require_once 'header.php';
                             <label for="section_id" class="form-label">Section</label>
                             <select class="form-select" id="section_id" name="section_id" required>
                                 <option value="">Select a section</option>
-                                <option value="1" <?php echo ($student['section_id'] == 1) ? 'selected' : ''; ?>>Rose</option>
-                                <option value="2" <?php echo ($student['section_id'] == 2) ? 'selected' : ''; ?>>Lily</option>
-                                <option value="3" <?php echo ($student['section_id'] == 3) ? 'selected' : ''; ?>>Daisy</option>
+                                <option value="1" <?php echo ($student['section_id'] == 1) ? 'selected' : ''; ?>>A</option>
+                                <option value="2" <?php echo ($student['section_id'] == 2) ? 'selected' : ''; ?>>B</option>
+                                <option value="3" <?php echo ($student['section_id'] == 3) ? 'selected' : ''; ?>>C</option>
+                                <option value="4" <?php echo ($student['section_id'] == 4) ? 'selected' : ''; ?>>D</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Profile Image Upload Section -->
                     <div class="mb-3">
-                        <label for="profile_image" class="form-label">Profile Image</label>
-                        <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(event)">
-                        <img id="image_preview" class="rounded-preview" src="<?php echo htmlspecialchars($student['profile_image_path'] ?? ''); ?>" style="<?php echo empty($student['profile_image_path']) ? 'display:none;' : ''; ?>">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" value="<?php echo htmlspecialchars($student['address']); ?>" required>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="address" name="address" value="<?php echo htmlspecialchars($student['address']); ?>" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="street" class="form-label">Street</label>
-                            <input type="text" class="form-control" id="street" name="street" value="<?php echo htmlspecialchars($student['street']); ?>" required>
-                        </div>
+                    <div class="mb-3">
+                        <label for="street" class="form-label">Street</label>
+                        <input type="text" class="form-control" id="street" name="street" value="<?php echo htmlspecialchars($student['street']); ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="words_from_class_teacher" class="form-label">Words from Class Teacher</label>
                         <textarea class="form-control" id="words_from_class_teacher" name="words_from_class_teacher" rows="3"><?php echo htmlspecialchars($student['words_from_class_teacher']); ?></textarea>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="words_from_principal" class="form-label">Words from Principal</label>
                         <textarea class="form-control" id="words_from_principal" name="words_from_principal" rows="3"><?php echo htmlspecialchars($student['words_from_principal']); ?></textarea>
@@ -251,9 +269,8 @@ require_once 'header.php';
                     <div class="mb-3">
                         <label for="education_status" class="form-label">Education Status</label>
                         <select class="form-select" id="education_status" name="education_status" required>
-                            <option value="">Select education status</option>
-                            <option value="pass" <?php echo ($student['education_status'] == 'pass') ? 'selected' : ''; ?>>Pass</option>
-                            <option value="fail" <?php echo ($student['education_status'] == 'fail') ? 'selected' : ''; ?>>Fail</option>
+                            <option value="enrolled" <?php echo ($student['education_status'] == 'enrolled') ? 'selected' : ''; ?>>Enrolled</option>
+                            <option value="completed" <?php echo ($student['education_status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
                         </select>
                     </div>
 
@@ -262,28 +279,13 @@ require_once 'header.php';
                         <textarea class="form-control" id="remarks" name="remarks" rows="3"><?php echo htmlspecialchars($student['remarks']); ?></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-submit">Update</button>
+                    <button type="submit" class="btn-submit">Update Student</button>
                 </form>
             <?php else: ?>
-                <div class="alert alert-warning">
-                    No student found or invalid student ID.
-                </div>
+                <p class="alert alert-danger">Student not found.</p>
             <?php endif; ?>
         </div>
     </div>
 </div>
-
-<script>
-function previewImage(event) {
-    var preview = document.getElementById('image_preview');
-    preview.style.display = 'block';
-    preview.src = URL.createObjectURL(event.target.files[0]);
-}
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<?php
-ob_end_flush(); // End output buffering and send content
-?>
