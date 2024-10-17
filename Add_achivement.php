@@ -261,3 +261,4 @@ clearButton.addEventListener('click', function() {
 </script>
 </body>
 </html>
+<?php include 'footer.php'; ?>

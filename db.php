@@ -1,5 +1,4 @@
 <?php
-
 $host = 'localhost'; // Your database host
 $db   = 'continental_school'; // Your database name
 $user = 'root'; // Your database username
