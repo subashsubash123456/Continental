@@ -105,6 +105,7 @@ try {
                         <p class="card-text"><strong>Class:</strong> <?php echo htmlspecialchars($student['class_name']); ?></p>
                         <p class="card-text"><strong>Address:</strong> <?php echo htmlspecialchars($student['address']); ?></p>
                         <a href="edit_student.php?id=<?php echo $student['student_id']; ?>" class="edit-button">Edit Details</a>
+                        
                     </div>
                 </div>
             </div>

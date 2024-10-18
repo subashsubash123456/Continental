@@ -36,6 +36,16 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
             $stmtAchievements->execute([$student['student_id']]);
             $achievements = $stmtAchievements->fetchAll();
 
+            // Fetch achievements with admin information
+$stmtAchievements = $pdo->prepare("
+SELECT a.*, adm.name AS admin_name 
+FROM achievement a
+LEFT JOIN admin adm ON a.admin_id = adm.id 
+WHERE a.student_id = ?
+");
+$stmtAchievements->execute([$student['student_id']]);
+$achievements = $stmtAchievements->fetchAll();
+
             // Updated exam query to include admin information
             $stmtExams = $pdo->prepare("
                 SELECT e.*, a.name AS admin_name, e.id AS exam_id
@@ -51,6 +61,17 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
             $stmtReports = $pdo->prepare("SELECT * FROM student_reports WHERE student_id = ?");
             $stmtReports->execute([$student['student_id']]);
             $reports = $stmtReports->fetchAll();
+
+            // Fetch student reports with admin information
+$stmtReports = $pdo->prepare("
+SELECT sr.*, adm.name AS admin_name 
+FROM student_reports sr
+LEFT JOIN admin adm ON sr.admin_id = adm.id 
+WHERE sr.student_id = ?
+");
+$stmtReports->execute([$student['student_id']]);
+$reports = $stmtReports->fetchAll();
+
         }
     } catch (PDOException $e) {
         echo "Error fetching student data: " . $e->getMessage();
@@ -148,6 +169,22 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
             padding: 5px 10px;
             border-radius: 10px;
             font-size: 0.9rem;
+        }.achievement-img, .report-img {
+    width: 80%;
+    height: 150px; /* Maintain the desired height */
+    object-fit: contain; /* Use 'contain' to avoid zooming in */
+    border-radius: 8px; /* Rounded corners */
+    border: 4px solid #ccc; /* Border color and width */
+    margin-bottom: 10px;
+    margin-left:10%;
+}
+
+        .parents-feedback {
+            max-height: 100px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -288,9 +325,11 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
                                             <div class="col-12">
                                                 <div class="p-2 bg-info bg-opacity-10 rounded">
                                                     <small class="text-info d-block fw-bold mb-1">Parents' Feedback</small>
-                                                    <p class="mb-0 small">
-                                                        <?php echo nl2br(htmlspecialchars($exam['parents_view'])); ?>
-                                                    </p>
+                                                    <div class="parents-feedback">
+                                                        <p class="mb-0 small">
+                                                            <?php echo nl2br(htmlspecialchars($exam['parents_view'])); ?>
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <?php endif; ?>
@@ -337,10 +376,19 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
                             <?php foreach ($achievements as $achievement): ?>
                                 <div class="card mb-3">
                                     <div class="card-body">
+                                        <?php if (!empty($achievement['photo_path'])): ?>
+                                            <img src="<?php echo htmlspecialchars($achievement['photo_path']); ?>" alt="Achievement Image" class="achievement-img">
+                                        <?php endif; ?>
                                         <h6><?php echo htmlspecialchars($achievement['title']); ?></h6>
                                         <p class="mb-2"><strong>Awarded by:</strong> <?php echo htmlspecialchars($achievement['awarded_by']); ?></p>
                                         <p class="mb-3"><strong>Date:</strong> <?php echo htmlspecialchars($achievement['date_of_achievement']); ?></p>
-                                        <a href="edit_achievement.php?id=<?php echo $achievement['id']; ?>" class="btn btn-edit">Edit</a>
+                                        <small class="text-muted">
+                                                        <i class="bi bi-person-badge me-1"></i>
+                                                        Recorded by: <?php echo htmlspecialchars($achievement['admin_name'] ?: 'N/A'); ?>
+                                                    </small>
+                                        <a href="edit_achievement.php?id=<?php echo $achievement['id']; ?>" class="btn btn-edit">
+                                        <i class="bi bi-pencil-fill me-1"></i>
+                                        Edit</a>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -364,6 +412,9 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
                             <?php foreach ($reports as $report): ?>
                                 <div class="card mb-3">
                                     <div class="card-body">
+                                        <?php if (!empty($report['image'])): ?>
+                                            <img src="<?php echo htmlspecialchars($report['image']); ?>" alt="Report Image" class="report-img">
+                                        <?php endif; ?>
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="mb-0">
                                                 <i class="bi bi-calendar3 me-2"></i>
@@ -382,6 +433,10 @@ if (isset($_GET['query']) && !empty($_GET['query'])) {
                                                 <?php echo nl2br(htmlspecialchars($report['visit_report'])); ?>
                                             </p>
                                         </div>
+                                        <small class="text-muted">
+                                                        <i class="bi bi-person-badge me-1"></i>
+                                                        Recorded by: <?php echo htmlspecialchars($report['admin_name'] ?: 'N/A'); ?>
+                                                    </small>
                                         <a href="edit_report.php?id=<?php echo $report['report_id']; ?>" 
                                            class="btn btn-sm btn-edit">
                                             <i class="bi bi-pencil-fill me-1"></i>Edit Report

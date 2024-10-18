@@ -1,7 +1,21 @@
 <?php
-require 'header.php';
-require_once 'db.php';
 ob_start(); // Start output buffering
+
+// Include database connection
+require_once 'db.php';
+require_once 'header.php';
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id']; // Get the logged-in user ID (admin)
+} else {
+    // Handle the case when user_id is not in the session
+    echo 'User is not logged in. Please log in again.';
+    exit; // Stop further execution
+}
+
+// Initialize variables
+$student = null;
+$errors = [];
+$success_message = '';
 if (isset($_GET['id'])) {
     $examId = $_GET['id'];
 
@@ -17,12 +31,14 @@ if (isset($_GET['id'])) {
         $passed_subjects = $_POST['passed_subjects'];
         $remarks = $_POST['remarks'];
         $parents_view = $_POST['parents_view'];
+        $admin_id = $_POST['admin_id']; // Get the updated admin ID
         
         // Update exam details
-        $stmtUpdate = $pdo->prepare("UPDATE exams SET GPA = ?, failed_subjects = ?, passed_subjects = ?, remarks = ?, parents_view = ? WHERE id = ?");
-        $stmtUpdate->execute([$gpa, $failed_subjects, $passed_subjects, $remarks, $parents_view, $examId]);
+        $stmtUpdate = $pdo->prepare("UPDATE exams SET GPA = ?, failed_subjects = ?, passed_subjects = ?, remarks = ?, parents_view = ?, admin_id = ? WHERE id = ?");
+        $stmtUpdate->execute([$gpa, $failed_subjects, $passed_subjects, $remarks, $parents_view, $admin_id, $examId]);
 
-        header("Location: student_profile.php?query=" . urlencode($exam['student_id'])); // Redirect after update
+        // Redirect to home.php after update
+        header("Location: home.php");
         exit;
     }
 } else {
@@ -102,6 +118,8 @@ if (isset($_GET['id'])) {
                     <label for="parents_view" class="form-label">Parents' View</label>
                     <textarea class="form-control" id="parents_view" name="parents_view"><?php echo htmlspecialchars($exam['parents_view']); ?></textarea>
                 </div>
+                <!-- Hidden input for admin ID -->
+                <input type="hidden" name="admin_id" value="<?php echo htmlspecialchars($user_id); ?>">
                 <button type="submit" class="btn-update">Update</button>
             </form>
         </div>

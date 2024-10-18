@@ -45,8 +45,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if (empty($errors)) {
-            // Read file content as BLOB data
-            $photo_data = file_get_contents($_FILES['photo']['tmp_name']);
+            // Create a folder if it doesn't exist
+            $upload_dir = 'uploads/achievements/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+
+            // Generate a unique file name to avoid overwriting
+            $file_extension = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+            $file_name = $upload_dir . uniqid() . '.' . $file_extension;
+
+            // Move the uploaded file to the designated folder
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $file_name)) {
+                $photo_path = $file_name; // Store the file path
+            } else {
+                $errors[] = "Failed to upload the image.";
+            }
         }
     }
 
@@ -54,15 +68,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($errors)) {
         try {
             // Prepare the SQL statement
-            $stmt = $pdo->prepare("INSERT INTO achievement (title, date_of_achievement, awarded_by, photo, student_id, admin_id) 
-                                   VALUES (:title, :date_of_achievement, :awarded_by, :photo, :student_id, :admin_id)");
+            $stmt = $pdo->prepare("INSERT INTO achievement (title, date_of_achievement, awarded_by, photo_path, student_id, admin_id) 
+                                   VALUES (:title, :date_of_achievement, :awarded_by, :photo_path, :student_id, :admin_id)");
 
             // Execute the query with form data
             $stmt->execute([
                 'title' => $_POST['title'],
                 'date_of_achievement' => $_POST['date_of_achievement'],
                 'awarded_by' => $_POST['awarded_by'],
-                'photo' => isset($photo_data) ? $photo_data : null,
+                'photo_path' => isset($photo_path) ? $photo_path : null,
                 'student_id' => $_POST['student_id'],
                 'admin_id' => $admin_id,
             ]);
@@ -80,6 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ob_end_flush(); // End output buffering and flush output
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
