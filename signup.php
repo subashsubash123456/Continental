@@ -1,12 +1,24 @@
 <?php
+ob_start();  // Start output buffering
+
+include "header.php"; 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
+// Ensure session is started
 
 // Include the database connection file
 require 'db.php'; // Ensure this path is correct
 
 // Initialize error messages
 $errors = [];
+
+// Only allow Admin to access the signup form
+if ($_SESSION['role'] != 'Admin') {
+    // Redirect if the user is not an admin
+    header("Location: home.php");
+    exit();
+}
 
 // Process the form when it is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -50,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Check if the insert was successful
         if ($stmt) {
-            // Redirect to login page after a successful signup
-            header("Location: login.php");
+            // Redirect to home page after a successful signup
+            header("Location: home.php");
             exit(); // Make sure to exit after redirecting
         } else {
             echo "<div class='alert alert-danger'>Error: Could not insert the record.</div>";
@@ -62,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Close the database connection
 $pdo = null; // This will close the connection
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,7 +139,7 @@ $pdo = null; // This will close the connection
 </head>
 <body>
     <div class="signup-container">
-        <h2 class="text-center">Signup Form</h2>
+        <h2 class="text-center">Register Form</h2>
         <?php if (!empty($errors)): ?>
             <div class="alert alert-danger">
                 <ul>
@@ -136,43 +149,49 @@ $pdo = null; // This will close the connection
                 </ul>
             </div>
         <?php endif; ?>
-        <form action="signup.php" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" class="form-control" required>
-            </div>
 
-            <div class="form-group">
-                <label for="role">Role:</label>
-                <select id="role" name="role" class="form-control" required>
-                    <option value="">Select Role</option>
-                    <option value="Class Teacher">Class Teacher</option>
-                    <option value="Principal">Principal</option>
-                    <option value="Admin">Admin</option>
-                </select>
-            </div>
+        <!-- Only show this form if the user is an Admin -->
+        <?php if ($_SESSION['role'] == 'Admin'): ?>
+            <form action="signup.php" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
 
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
+                <div class="form-group">
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="">Select Role</option>
+                        <option value="Class Teacher">Class Teacher</option>
+                        <option value="Principal">Principal</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="phone">Phone:</label>
-                <input type="text" id="phone" name="phone" class="form-control" required>
-            </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
 
-            <div class="form-group file-input-container">
-                <label class="file-input-label" for="image">Profile Image:</label>
-                <label for="image" class="custom-file-upload">
-                    Choose File
-                </label>
-                <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-                <img id="imagePreview" class="circular-image" alt="Profile Image Preview">
-            </div>
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" class="form-control" required>
+                </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Signup</button>
-        </form>
+                <div class="form-group file-input-container">
+                    <label class="file-input-label" for="image">Profile Image:</label>
+                    <label for="image" class="custom-file-upload">
+                        Choose File
+                    </label>
+                    <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                    <img id="imagePreview" class="circular-image" alt="Profile Image Preview">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Signup</button>
+            </form>
+        <?php else: ?>
+            <p class="text-center">You do not have permission to access this page. Only admins can sign up new users.</p>
+        <?php endif; ?>
     </div>
 
     <!-- Bootstrap JS and dependencies -->

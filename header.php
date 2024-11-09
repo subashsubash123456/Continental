@@ -168,14 +168,21 @@ if (!isset($_SESSION['eca_data'])) {
             <a href="add_achivement.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'add_achivement.php') ? 'active' : ''; ?>">ECA Achievements</a>
             <a href="exam.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'exam.php') ? 'active' : ''; ?>">Exam Records</a>
             <a href="report.php" class="<?php echo (basename($_SERVER['PHP_SELF']) == 'report.php') ? 'active' : ''; ?>">Class Teacher Report</a>
+            
         </nav>
         <div class="user-menu">
-            <div class="d-flex align-items-center">
-                <img src="<?php echo isset($_SESSION['user_photo']) ? $_SESSION['user_photo'] : 'default-profile.jpg'; ?>" alt="User Photo" class="user-photo me-2">
-                <span class="me-2"><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User'; ?></span>
-                <a href="logout.php" class="logout-button">Logout</a>
-            </div>
-        </div>
+    <div class="d-flex align-items-center">
+        <!-- Wrap the user photo with a link to profile.php -->
+        <a href="profile.php">
+            <img src="<?php echo isset($_SESSION['user_photo']) ? $_SESSION['user_photo'] : 'default-profile.jpg'; ?>" 
+                 alt="User Photo" 
+                 class="user-photo me-2">
+        </a>
+        <span class="me-2"><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User'; ?></span>
+        <a href="logout.php" class="logout-button">Logout</a>
+    </div>
+</div>
+
     </header>
     <div class="search-bar">
         <form class="search-container" method="GET" action="search.php">

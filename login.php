@@ -92,9 +92,6 @@ $pdo = null; // This will close the connection
 
             <button type="submit" class="btn btn-primary btn-block">Login</button>
         </form>
-        <div class="text-center mt-3">
-            <a href="signup.php">Don't have an account? Sign up</a>
-        </div>
     </div>
 
     <!-- Bootstrap JS and dependencies -->
